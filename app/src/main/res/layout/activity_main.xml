@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/colorPrimaryDark"
+              android:orientation="vertical">
+
+
+    <com.raymondqk.raymusicplayer.customview.AvatarCircle
+        android:id="@+id/avatar_main"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/avatar_joyce"
+        app:StrokeColor="@color/white"
+        app:StrokeWidth="5dp"/>
+
+    <TextView
+        android:id="@+id/tv_main_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:text="Title:xxxxx"
+        android:textColor="#fff"
+        android:textSize="26sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/tv_main_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Artist:xxxxx"
+        android:textColor="#fff"
+        android:textSize="22sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp">
+
+        <TextView
+            android:id="@+id/tv_pass_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textColor="@color/colorAccent"
+            android:textSize="12sp"/>
+        <ProgressBar
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_margin="10dp"
+
+            android:layout_height="wrap_content"
+            android:id="@+id/progressbar"/>
+        <TextView
+            android:id="@+id/tv_main_time"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="05:13"/>
+    </LinearLayout>
+</LinearLayout>
