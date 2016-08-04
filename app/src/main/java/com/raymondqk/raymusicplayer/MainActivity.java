@@ -23,7 +23,6 @@ import com.raymondqk.raymusicplayer.customview.MusicService;
 /**
  * Created by 陈其康 raymondchan on 2016/8/3 0003.
  * 当前进度：完成主界面布局
- *
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, MusicService.SetAvatarCallBack {
 
@@ -42,7 +41,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MusicService.OnCompletionCallback mOnCompletionCallback = new MusicService.OnCompletionCallback() {
         @Override
         public void OnCompletion() {
-            playNext();
+            if (mMusicService.getPlay_mode() != MusicService.MODE_LOOP_ONE) {
+                playNext();
+            }
+
         }
     };
     MusicService.PlayCallback mPlayCallback = new MusicService.PlayCallback() {
@@ -253,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void run() {
                     mTv_position.setText(mMusicService.getCurrent_pisition());
-                    mProgress.setProgress((int) (mMusicService.getProgressPercent()*mProgress.getMax()));
+                    mProgress.setProgress((int) (mMusicService.getProgressPercent() * mProgress.getMax()));
                     updateSeekBar();
                 }
             }, 1000);

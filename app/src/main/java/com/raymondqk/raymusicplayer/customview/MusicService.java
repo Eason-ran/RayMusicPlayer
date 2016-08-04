@@ -125,7 +125,12 @@ public class MusicService extends Service {
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                mCompletionCallback.OnCompletion();
+                if (play_mode != MODE_LOOP_ONE) {
+                    mCompletionCallback.OnCompletion();
+                }else {
+
+                    mMediaPlayer.start();
+                }
             }
         });
     }
@@ -150,7 +155,7 @@ public class MusicService extends Service {
         }
     }
 
-    private void continueMusic() {
+    public void continueMusic() {
         mMediaPlayer.start();
     }
 
