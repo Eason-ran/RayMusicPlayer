@@ -22,6 +22,8 @@ import com.raymondqk.raymusicplayer.customview.MusicService;
 
 /**
  * Created by 陈其康 raymondchan on 2016/8/3 0003.
+ * 当前进度：完成主界面布局
+ *
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, MusicService.SetAvatarCallBack {
 
