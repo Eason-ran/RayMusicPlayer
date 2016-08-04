@@ -1,10 +1,12 @@
 package com.raymondqk.raymusicplayer.customview;
 
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -60,6 +62,9 @@ public class MusicService extends Service {
     private ArrayList<Uri> mMusicUriList = new ArrayList<Uri>();
     private int currentIndex;
 
+    private ArrayList<String> mTitleList = new ArrayList<String>();
+    private ArrayList<String> mArtistList = new ArrayList<String>();
+
     public void setSeekTo(float percent) {
         mMediaPlayer.seekTo((int) (current_duration * percent));
     }
@@ -109,6 +114,7 @@ public class MusicService extends Service {
         return START_NOT_STICKY;
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onCreate() {
         super.onCreate();
@@ -116,10 +122,16 @@ public class MusicService extends Service {
         Uri uri = Uri.parse("android.resource://com.raymondqk.raymusicplayer/" + R.raw.missyou);
         mMusicUriList.add(uri);
         mAvatarResIdList.add(R.drawable.avatar_joyce);
+        // TODO: 2016/8/4 0004 此处需要修改，不能这么简单粗暴，改为从数据库读取，换成HashMap实现
+        mTitleList.add("好想你");
+        mArtistList.add("Joyce");
 
         uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.stillalive);
         mMusicUriList.add(uri);
         mAvatarResIdList.add(R.drawable.avatar_bigbang);
+        mTitleList.add("STILL ALIVE");
+        mArtistList.add("BIGBANG");
+
 
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -173,6 +185,12 @@ public class MusicService extends Service {
         return play_state;
     }
 
+    public String title(){
+        return mTitleList.get(currentIndex%mTitleList.size());
+    }
+    public String artist(){
+        return mArtistList.get(currentIndex%mArtistList.size());
+    }
     public void nextMusic() {
         // TODO: 2016/8/4 0004 播放下一首
         //        Toast.makeText(MusicService.this, "下一首", Toast.LENGTH_SHORT).show();
@@ -202,6 +220,7 @@ public class MusicService extends Service {
             mMediaPlayer.reset();
         }
         beforePlay();
+
         mMediaPlayer.start();
     }
 
@@ -209,6 +228,7 @@ public class MusicService extends Service {
     private void beforePlay() {
         current_duration = mMediaPlayer.getDuration();
         mPlayCallback.onPlayPrepared();
+        
     }
 
     public void previewMusic() {

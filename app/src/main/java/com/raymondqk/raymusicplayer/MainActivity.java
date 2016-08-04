@@ -51,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onPlayPrepared() {
             mTv_duration.setText(mMusicService.getCurrent_duration());
+            mTv_title.setText(mMusicService.title());
+            mTv_artist.setText(mMusicService.artist());
+
         }
     };
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -77,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Handler mHandler = new Handler();
     private TextView mTv_position;
     private SeekBar mProgress;
+    private TextView mTv_title;
+    private TextView mTv_artist;
 
 
     @Override
@@ -104,6 +109,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTv_duration.setText("00:00");
         mTv_position = (TextView) findViewById(R.id.tv_pass_time);
         mTv_position.setText("00:00");
+
+        mTv_title = (TextView) findViewById(R.id.tv_main_title);
+        mTv_artist = (TextView) findViewById(R.id.tv_main_artist);
 
         mProgress = (SeekBar) findViewById(R.id.progressbar);
         mProgress.setProgress(0);
