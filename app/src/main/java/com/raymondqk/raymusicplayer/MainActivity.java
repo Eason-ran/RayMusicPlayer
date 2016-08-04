@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MusicService.PlayCallback mPlayCallback = new MusicService.PlayCallback() {
         @Override
         public void onPlayPrepared() {
-
             mTv_duration.setText(mMusicService.getCurrent_duration());
         }
     };
@@ -111,22 +110,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) { //必须这个判断，是否为用户拉动导致的进度变更，否则会造成播放卡顿现象
-                    float percent = (float) progress / (float) mProgress.getMax();
-                    mMusicService.setSeekTo(percent);
+                if (!mMusicService.isFisrtPlay()) {
+                    if (fromUser) { //必须这个判断，是否为用户拉动导致的进度变更，否则会造成播放卡顿现象
+                        float percent = (float) progress / (float) mProgress.getMax();
+                        mMusicService.setSeekTo(percent);
+                    }
+                }else {
+                    Toast.makeText(MainActivity.this, "请先点击播放", Toast.LENGTH_SHORT).show();
                 }
 
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                mMusicService.setPlay_state(MusicService.STATE_STOP);
+                if (!mMusicService.isFisrtPlay()) {
+                    mMusicService.setPlay_state(MusicService.STATE_STOP);
+                }
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mMusicService.setPlay_state(MusicService.STATE_PLAYING);
-                updateSeekBar();
+                if (!mMusicService.isFisrtPlay()) {
+                    mMusicService.setPlay_state(MusicService.STATE_PLAYING);
+                    updateSeekBar();
+                } else {
+                    mProgress.setProgress(0);
+                }
             }
         });
 
