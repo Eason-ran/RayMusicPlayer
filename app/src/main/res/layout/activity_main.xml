@@ -4,41 +4,55 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@color/colorPrimaryDark"
-              android:orientation="vertical">
+              android:orientation="vertical"
+    >
 
-
-    <com.raymondqk.raymusicplayer.customview.AvatarCircle
-        android:id="@+id/avatar_main"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:src="@drawable/avatar_joyce"
-        android:scaleType="fitCenter"
-        app:StrokeColor="@color/white"
-        app:StrokeWidth="5dp"/>
-
-    <TextView
-        android:id="@+id/tv_main_title"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_height="0dp"
+        android:layout_weight="4"
         android:gravity="center"
-        android:text="好想你"
-        android:textColor="#fff"
-        android:textSize="28sp"
-        android:layout_marginBottom="5dp"
-        android:textStyle="bold"/>
+        android:padding="10dp">
 
-    <TextView
+        <com.raymondqk.raymusicplayer.customview.AvatarCircle
+            android:id="@+id/avatar_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:src="@drawable/avatar_joyce"
+            app:StrokeColor="@color/white"
+            app:StrokeWidth="5dp"/>
+    </LinearLayout>
 
-        android:id="@+id/tv_main_artist"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Joyce"
-        android:textColor="#fff"
-        android:textSize="18sp"/>
+        >
+
+        <TextView
+            android:id="@+id/tv_main_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:text="好想你"
+            android:textColor="#fff"
+            android:textSize="28sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tv_main_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_main_title"
+            android:gravity="center"
+            android:text="Joyce"
+            android:textColor="#fff"
+            android:textSize="18sp"/>
+    </RelativeLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -62,12 +76,9 @@
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:layout_weight="1"
-            android:max="100"
-            android:paddingTop="3dp"
-            android:progress="20"/>
+            android:max="50"
+            android:paddingTop="3dp"/>
 
         <TextView
             android:id="@+id/tv_main_time"
@@ -89,8 +100,10 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="1"
         android:gravity="center"
         android:orientation="horizontal">
 

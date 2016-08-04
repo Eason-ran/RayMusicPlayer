@@ -24,7 +24,7 @@ public class MusicService extends Service {
     public static final int MODE_RADOM = 2;
 
     public static final int STATE_PLAYING = 0;
-    public static final int STATE_PAUSE = 1;
+    //    public static final int STATE_PAUSE = 1;
     public static final int STATE_STOP = 2;
 
     public static final int MSG_STOP = 0;
@@ -48,9 +48,8 @@ public class MusicService extends Service {
     }
 
     private int current_Avatar = 0;
-
-
     private int current_duration;
+    private int current_pisition;
 
 
     MusicServiceBinder mBinder = new MusicServiceBinder();
@@ -61,11 +60,35 @@ public class MusicService extends Service {
     private ArrayList<Uri> mMusicUriList = new ArrayList<Uri>();
     private int currentIndex;
 
+    public void setSeekTo(float percent) {
+        mMediaPlayer.seekTo((int) (current_duration * percent));
+    }
+
     public interface SetAvatarCallBack {
         void setAvatar(int resId);
     }
 
-    //    SetAvatarCallBack mSetAvatarCallBack = new SetAvatarCallBack();
+    public interface OnCompletionCallback {
+        void OnCompletion();
+    }
+
+    public interface PlayCallback {
+        void onPlayPrepared();
+    }
+
+
+    private OnCompletionCallback mCompletionCallback;
+
+    public void setCompletionCallback(OnCompletionCallback completionCallback) {
+        mCompletionCallback = completionCallback;
+    }
+
+
+    private PlayCallback mPlayCallback;
+
+    public void setPlayCallback(PlayCallback playCallback) {
+        mPlayCallback = playCallback;
+    }
 
     @Nullable
     @Override
@@ -99,6 +122,12 @@ public class MusicService extends Service {
         mAvatarResIdList.add(R.drawable.avatar_bigbang);
 
         mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mCompletionCallback.OnCompletion();
+            }
+        });
     }
 
 
@@ -157,17 +186,24 @@ public class MusicService extends Service {
     }
 
     public void playMusic() {
+
+
         try {
-            mMediaPlayer.setDataSource(this, mMusicUriList.get(currentIndex % mMusicUriList.size()));
+            mMediaPlayer.setDataSource(MusicService.this, mMusicUriList.get(currentIndex % mMusicUriList.size()));
             mMediaPlayer.prepare();
         } catch (IOException e) {
             e.printStackTrace();
             Log.e("Test", "无法播放音乐");
             mMediaPlayer.reset();
         }
-        current_duration = mMediaPlayer.getDuration();
+        beforePlay();
         mMediaPlayer.start();
+    }
 
+
+    private void beforePlay() {
+        current_duration = mMediaPlayer.getDuration();
+        mPlayCallback.onPlayPrepared();
     }
 
     public void previewMusic() {
@@ -189,8 +225,42 @@ public class MusicService extends Service {
         }
     }
 
-    public int getCurrent_duration() {
-        return current_duration;
+    public String getCurrent_duration() {
+        return getTimeStrByMils(current_duration);
+
+    }
+
+
+    private String getTimeStrByMils(int mils) {
+        int seconds = mils / 1000;
+        int min = seconds / 60;
+        int sec = seconds % 60;
+        String min_str;
+        String sec_str;
+        if (min < 10) {
+            min_str = "0" + min;
+        } else {
+            min_str = min + "";
+        }
+        if (sec < 10) {
+            sec_str = "0" + sec;
+        } else {
+            sec_str = sec + "";
+        }
+        return min_str + ":" + sec_str;
+    }
+
+    public void setCurrent_duration(int current_duration) {
+        this.current_duration = current_duration;
+    }
+
+    public String getCurrent_pisition() {
+        return getTimeStrByMils(mMediaPlayer.getCurrentPosition());
+    }
+
+    public float getProgressPercent() {
+
+        return (float) mMediaPlayer.getCurrentPosition() / (float) mMediaPlayer.getDuration();
     }
 
     public class MusicServiceBinder extends Binder {

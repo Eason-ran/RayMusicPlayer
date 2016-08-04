@@ -46,6 +46,12 @@ public class AvatarCircle extends ImageView {
         inti(context, attrs);
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+//        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        mWidth = (widthMeasureSpec>heightMeasureSpec)?heightMeasureSpec:widthMeasureSpec;
+        setMeasuredDimension(mWidth,mWidth);
+    }
 
     //设置图片着色器
     private void setBitmapShader() {
