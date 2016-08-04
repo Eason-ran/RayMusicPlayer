@@ -20,7 +20,7 @@ import com.raymondqk.raymusicplayer.customview.MusicService;
 /**
  * Created by 陈其康 raymondchan on 2016/8/3 0003.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener,MusicService.SetAvatarCallBack{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, MusicService.SetAvatarCallBack {
 
 
     private AvatarCircle mAvatarCircle;
@@ -33,12 +33,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MusicService mMusicService;
 
 
-//    MusicService.SetAvatarCallBack mSetAvatarCallBack = new MusicService.SetAvatarCallBack() {
-//        @Override
-//        public void setAvatar(int resId) {
-//            mAvatarCircle.setImageResource(resId);
-//        }
-//    };
+    //    MusicService.SetAvatarCallBack mSetAvatarCallBack = new MusicService.SetAvatarCallBack() {
+    //        @Override
+    //        public void setAvatar(int resId) {
+    //            mAvatarCircle.setImageResource(resId);
+    //        }
+    //    };
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMusicService = null;
         unbindService(mServiceConnection);
         stopService(mMusicSeviceIntent);
-        Log.i("Test","MainActivity onDestroy");
+        Log.i("Test", "MainActivity onDestroy");
     }
 
     private void serviceInit() {
@@ -171,12 +171,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.ib_next:
-                mMusicService.nextMusic();
-                mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
+                if (!mMusicService.isFisrtPlay()) {
+                    mMusicService.nextMusic();
+                    mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
+                }
                 break;
             case R.id.ib_preview:
-                mMusicService.previewMusic();
-                mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
+                if (!mMusicService.isFisrtPlay()) {
+                    mMusicService.previewMusic();
+                    mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
+
+                }
+
                 break;
         }
     }

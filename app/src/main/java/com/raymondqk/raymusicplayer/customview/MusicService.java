@@ -37,6 +37,10 @@ public class MusicService extends Service {
     private int play_mode = MODE_LOOP_ALL;
     private int play_state = STATE_STOP;
 
+    public boolean isFisrtPlay() {
+        return fisrtPlay;
+    }
+
     private boolean fisrtPlay = true;
 
     public int getCurrent_Avatar() {
@@ -44,7 +48,6 @@ public class MusicService extends Service {
     }
 
     private int current_Avatar = 0;
-
 
 
     private int current_duration;
@@ -106,10 +109,10 @@ public class MusicService extends Service {
     public void setPlay_state(int play_state) {
         this.play_state = play_state;
         if (this.play_state == STATE_PLAYING) {
-            if (fisrtPlay){
+            if (fisrtPlay) {
                 playMusic();
                 fisrtPlay = false;
-            }else {
+            } else {
                 continueMusic();
             }
 
@@ -138,15 +141,18 @@ public class MusicService extends Service {
 
     public void nextMusic() {
         // TODO: 2016/8/4 0004 播放下一首
-//        Toast.makeText(MusicService.this, "下一首", Toast.LENGTH_SHORT).show();
+        //        Toast.makeText(MusicService.this, "下一首", Toast.LENGTH_SHORT).show();
         //        if (currentIndex > 0) {
         //            currentIndex++;
         //        }
-        currentIndex++;
-        current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
-        mMediaPlayer.reset();
-        playMusic();
+        if (fisrtPlay) {
 
+        } else {
+            currentIndex++;
+            current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
+            mMediaPlayer.reset();
+            playMusic();
+        }
 
     }
 
@@ -159,29 +165,34 @@ public class MusicService extends Service {
             Log.e("Test", "无法播放音乐");
             mMediaPlayer.reset();
         }
-        current_duration =  mMediaPlayer.getDuration();
+        current_duration = mMediaPlayer.getDuration();
         mMediaPlayer.start();
 
     }
 
     public void previewMusic() {
         // TODO: 2016/8/4 0004
-//        Toast.makeText(MusicService.this, "上一首", Toast.LENGTH_SHORT).show();
-        if (currentIndex > 0) {
-            currentIndex--;
+        //        Toast.makeText(MusicService.this, "上一首", Toast.LENGTH_SHORT).show();
+        if (fisrtPlay) {
+
         } else {
-            //实现列表前一首到头时，直接跳到队尾。
-            currentIndex = mMusicUriList.size() - 1;
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                //实现列表前一首到头时，直接跳到队尾。
+                currentIndex = mMusicUriList.size() - 1;
+            }
+            //        mSetAvatarCallBack.setAvatar(mAvatars[currentIndex % mAvatars.length]);
+            current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
+            mMediaPlayer.reset();
+            playMusic();
         }
-        //        mSetAvatarCallBack.setAvatar(mAvatars[currentIndex % mAvatars.length]);
-        current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
-        mMediaPlayer.reset();
-        playMusic();
     }
 
     public int getCurrent_duration() {
         return current_duration;
     }
+
     public class MusicServiceBinder extends Binder {
         public MusicService getServiceInstance() {
             return MusicService.this;
