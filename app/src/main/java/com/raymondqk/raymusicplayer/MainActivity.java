@@ -24,7 +24,7 @@ import com.raymondqk.raymusicplayer.customview.MusicService;
  * Created by 陈其康 raymondchan on 2016/8/3 0003.
  * 当前进度：完成主界面布局
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, MusicService.SetAvatarCallBack {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
 
     private AvatarCircle mAvatarCircle;
@@ -53,6 +53,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mTv_duration.setText(mMusicService.getCurrent_duration());
             mTv_title.setText(mMusicService.title());
             mTv_artist.setText(mMusicService.artist());
+            mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
+            mIb_play.setImageResource(R.drawable.pause);
+            updateSeekBar();
+
 
         }
     };
@@ -93,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initView() {
         getSupportActionBar().setSubtitle("播放界面");
+        getSupportActionBar().setIcon(R.drawable.preview_selector);
         mAvatarCircle = (AvatarCircle) findViewById(R.id.avatar_main);
         mAvatarCircle.setOnClickListener(this);
         mIb_play_mode = (ImageButton) findViewById(R.id.ib_play_mode);
@@ -123,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         float percent = (float) progress / (float) mProgress.getMax();
                         mMusicService.setSeekTo(percent);
                     }
-                }else {
+                } else {
                     Toast.makeText(MainActivity.this, "请先点击播放", Toast.LENGTH_SHORT).show();
                 }
 
@@ -140,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (!mMusicService.isFisrtPlay()) {
                     mMusicService.setPlay_state(MusicService.STATE_PLAYING);
-                    updateSeekBar();
+                    //                    updateSeekBar();
                 } else {
                     mProgress.setProgress(0);
                 }
@@ -153,6 +158,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
+        //        if (mMusicService!=null){
+        //            if (mMusicService.getPlay_state() == MusicService.STATE_PLAYING){
+        //                updateSeekBar();
+        //                mIb_play.setImageResource(R.drawable.play);
+        //            }
+        //        }
 
     }
 
@@ -227,9 +238,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.ib_play:
                 if (mMusicService != null) {
                     if (mMusicService.getPlay_state() == MusicService.STATE_STOP) {
-                        mIb_play.setImageResource(R.drawable.pause);
                         mMusicService.setPlay_state(MusicService.STATE_PLAYING);
-                        updateSeekBar();
                         // TODO: 2016/8/4 0004 在Service里面进行音乐播放的操作
                     } else {
                         mIb_play.setImageResource(R.drawable.play);
@@ -244,11 +253,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.ib_preview:
                 if (!mMusicService.isFisrtPlay()) {
                     mMusicService.previewMusic();
-                    mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
-                    updateSeekBar();
-
+                    //                    mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
+                    //                    updateSeekBar();
                 }
-
                 break;
         }
     }
@@ -256,15 +263,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void playNext() {
         if (!mMusicService.isFisrtPlay()) {
             mMusicService.nextMusic();
-            mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
-            updateSeekBar();
+            //            mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
+            //            updateSeekBar();
         }
     }
 
-    @Override
-    public void setAvatar(int resId) {
-        mAvatarCircle.setImageResource(resId);
-    }
 
     public void updateSeekBar() {
         if (mMusicService.getPlay_state() == MusicService.STATE_PLAYING) {

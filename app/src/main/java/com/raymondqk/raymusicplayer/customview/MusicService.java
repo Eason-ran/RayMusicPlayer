@@ -2,19 +2,25 @@ package com.raymondqk.raymusicplayer.customview;
 
 import android.annotation.TargetApi;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.raymondqk.raymusicplayer.R;
+import com.raymondqk.raymusicplayer.widget.MusicWidgetProvider;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created by 陈其康 raymondchan on 2016/8/4 0004.
@@ -34,8 +40,17 @@ public class MusicService extends Service {
     public static final int MSG_PAUSE = 2;
     public static final int MSG_NEXT = 3;
     public static final int MSG_PREVIEW = 4;
+    private MusicServiceReceiver mMusicServiceReceiver;
 
+    public boolean isFavor() {
+        return isFavor;
+    }
 
+    public void setFavor(boolean favor) {
+        isFavor = favor;
+    }
+
+    private boolean isFavor = false;
     private int play_mode = MODE_LOOP_ALL;
     private int play_state = STATE_STOP;
 
@@ -60,7 +75,24 @@ public class MusicService extends Service {
     private ArrayList<Integer> mAvatarResIdList = new ArrayList<Integer>();
     private int[] mAvatars = {R.drawable.avatar_joyce, R.drawable.avatar_bigbang};
     private ArrayList<Uri> mMusicUriList = new ArrayList<Uri>();
+
+    public int getCurrentIndex() {
+        return currentIndex;
+    }
+
     private int currentIndex;
+
+    public ArrayList<String> getTitleList() {
+        return mTitleList;
+    }
+
+    public ArrayList<Integer> getAvatarResIdList() {
+        return mAvatarResIdList;
+    }
+
+    public ArrayList<String> getArtistList() {
+        return mArtistList;
+    }
 
     private ArrayList<String> mTitleList = new ArrayList<String>();
     private ArrayList<String> mArtistList = new ArrayList<String>();
@@ -69,9 +101,16 @@ public class MusicService extends Service {
         mMediaPlayer.seekTo((int) (current_duration * percent));
     }
 
-    public interface SetAvatarCallBack {
-        void setAvatar(int resId);
+    public void onListItemClick(int position) {
+        if (isFisrtPlay()) {
+            fisrtPlay = false;
+        }
+        currentIndex = position;
+        current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
+        play_state = STATE_PLAYING;
+        playMusic();
     }
+
 
     public interface OnCompletionCallback {
         void OnCompletion();
@@ -89,10 +128,11 @@ public class MusicService extends Service {
     }
 
 
-    private PlayCallback mPlayCallback;
+    private HashSet<PlayCallback> mPlayCallbackHashSet = new HashSet<PlayCallback>();
+    //    private PlayCallback mPlayCallback;
 
     public void setPlayCallback(PlayCallback playCallback) {
-        mPlayCallback = playCallback;
+        mPlayCallbackHashSet.add(playCallback);
     }
 
     @Nullable
@@ -111,6 +151,8 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("Test", "onStartCommand");
+        playMusic();
         return START_NOT_STICKY;
     }
 
@@ -119,18 +161,20 @@ public class MusicService extends Service {
     public void onCreate() {
         super.onCreate();
         //android 获取raw 绝对路径 -- raw资源转uri
-        Uri uri = Uri.parse("android.resource://com.raymondqk.raymusicplayer/" + R.raw.missyou);
-        mMusicUriList.add(uri);
-        mAvatarResIdList.add(R.drawable.avatar_joyce);
-        // TODO: 2016/8/4 0004 此处需要修改，不能这么简单粗暴，改为从数据库读取，换成HashMap实现
-        mTitleList.add("好想你");
-        mArtistList.add("Joyce");
+        for (int i = 0; i < 5; i++) {
+            Uri uri = Uri.parse("android.resource://com.raymondqk.raymusicplayer/" + R.raw.missyou);
+            mMusicUriList.add(uri);
+            mAvatarResIdList.add(R.drawable.avatar_joyce);
+            // TODO: 2016/8/4 0004 此处需要修改，不能这么简单粗暴，改为从数据库读取，换成HashMap实现
+            mTitleList.add("好想你");
+            mArtistList.add("Joyce");
 
-        uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.stillalive);
-        mMusicUriList.add(uri);
-        mAvatarResIdList.add(R.drawable.avatar_bigbang);
-        mTitleList.add("STILL ALIVE");
-        mArtistList.add("BIGBANG");
+            uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.stillalive);
+            mMusicUriList.add(uri);
+            mAvatarResIdList.add(R.drawable.avatar_bigbang);
+            mTitleList.add("STILL ALIVE");
+            mArtistList.add("BIGBANG");
+        }
 
 
         mMediaPlayer = new MediaPlayer();
@@ -139,12 +183,21 @@ public class MusicService extends Service {
             public void onCompletion(MediaPlayer mp) {
                 if (play_mode != MODE_LOOP_ONE) {
                     mCompletionCallback.OnCompletion();
-                }else {
+                } else {
 
                     mMediaPlayer.start();
                 }
             }
         });
+
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MusicWidgetProvider.WIDGET_PLAY);
+        intentFilter.addAction(MusicWidgetProvider.WIDGET_NEXT);
+        intentFilter.addAction(MusicWidgetProvider.WIDGET_PREVIEW);
+        mMusicServiceReceiver = new MusicServiceReceiver();
+        registerReceiver(mMusicServiceReceiver, intentFilter);
+        Log.i("Test", "registReceiver");
     }
 
 
@@ -156,6 +209,7 @@ public class MusicService extends Service {
         this.play_state = play_state;
         if (this.play_state == STATE_PLAYING) {
             if (fisrtPlay) {
+                current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
                 playMusic();
                 fisrtPlay = false;
             } else {
@@ -185,12 +239,14 @@ public class MusicService extends Service {
         return play_state;
     }
 
-    public String title(){
-        return mTitleList.get(currentIndex%mTitleList.size());
+    public String title() {
+        return mTitleList.get(currentIndex % mTitleList.size());
     }
-    public String artist(){
-        return mArtistList.get(currentIndex%mArtistList.size());
+
+    public String artist() {
+        return mArtistList.get(currentIndex % mArtistList.size());
     }
+
     public void nextMusic() {
         // TODO: 2016/8/4 0004 播放下一首
         //        Toast.makeText(MusicService.this, "下一首", Toast.LENGTH_SHORT).show();
@@ -202,15 +258,15 @@ public class MusicService extends Service {
         } else {
             currentIndex++;
             current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
-            mMediaPlayer.reset();
+            //            mMediaPlayer.reset();
             playMusic();
         }
 
     }
 
     public void playMusic() {
-
-
+        Log.i("Test", "play");
+        mMediaPlayer.reset();
         try {
             mMediaPlayer.setDataSource(MusicService.this, mMusicUriList.get(currentIndex % mMusicUriList.size()));
             mMediaPlayer.prepare();
@@ -227,8 +283,11 @@ public class MusicService extends Service {
 
     private void beforePlay() {
         current_duration = mMediaPlayer.getDuration();
-        mPlayCallback.onPlayPrepared();
-        
+        //        mPlayCallback.onPlayPrepared();
+        for (PlayCallback playCallback : mPlayCallbackHashSet) {
+            playCallback.onPlayPrepared();
+        }
+
     }
 
     public void previewMusic() {
@@ -243,9 +302,9 @@ public class MusicService extends Service {
                 //实现列表前一首到头时，直接跳到队尾。
                 currentIndex = mMusicUriList.size() - 1;
             }
-            //        mSetAvatarCallBack.setAvatar(mAvatars[currentIndex % mAvatars.length]);
+
             current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
-            mMediaPlayer.reset();
+            //            mMediaPlayer.reset();
             playMusic();
         }
     }
@@ -294,6 +353,31 @@ public class MusicService extends Service {
         }
     }
 
+    class MusicServiceReceiver extends BroadcastReceiver {
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (intent != null) {
+                if (TextUtils.equals(intent.getAction(), MusicWidgetProvider.WIDGET_PLAY)) {
+                    if (getPlay_state() == MusicService.STATE_STOP) {
+                        setPlay_state(MusicService.STATE_PLAYING);
+                        // TODO: 2016/8/4 0004 在Service里面进行音乐播放的操作
+                    } else {
+                        setPlay_state(MusicService.STATE_STOP);
+                        // TODO: 2016/8/4 0004 在Service里面进行音乐暂停的操作
+                    }
+                    Log.i("TEST", "service-onReceive-PLAY");
+                } else if (TextUtils.equals(intent.getAction(), MusicWidgetProvider.WIDGET_NEXT)) {
+                    nextMusic();
+                    Log.i("TEST", "service-onReceive-next");
+                } else if (TextUtils.equals(intent.getAction(), MusicWidgetProvider.WIDGET_PREVIEW)) {
+                    previewMusic();
+                    Log.i("TEST", "service-onReceive-PRE");
+                }
+            }
+
+        }
+    }
 }
 

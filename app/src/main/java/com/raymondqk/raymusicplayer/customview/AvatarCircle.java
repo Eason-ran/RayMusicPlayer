@@ -48,9 +48,11 @@ public class AvatarCircle extends ImageView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        mWidth = (widthMeasureSpec>heightMeasureSpec)?heightMeasureSpec:widthMeasureSpec;
-        setMeasuredDimension(mWidth,mWidth);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//        mWidth = (widthMeasureSpec>heightMeasureSpec)?heightMeasureSpec:widthMeasureSpec;
+//        mWidth = (getMeasuredWidth()>getMeasuredHeight())?getMeasuredHeight():getMeasuredWidth();
+//        mWidth = getWidth();
+//        setMeasuredDimension(mWidth,mWidth);
     }
 
     //设置图片着色器
@@ -69,8 +71,8 @@ public class AvatarCircle extends ImageView {
         //get the bitmap's min one between its height and width
         int bitmapSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
         //calculate the scale between bitmap and view
-        mWidth = getWidth() - 100;
-        scale = mWidth * 1.0f / bitmapSize;  // warn: use float to avoid some problem cause by precision
+        mWidth = (int) (getWidth()*0.9);
+        scale = getWidth()* 1.0f / bitmapSize;  // warn: use float to avoid some problem cause by precision
 
 
         //set the 变换矩阵 with scale
