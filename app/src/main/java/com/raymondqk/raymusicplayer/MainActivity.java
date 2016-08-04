@@ -158,15 +158,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        //        if (mMusicService!=null){
-        //            if (mMusicService.getPlay_state() == MusicService.STATE_PLAYING){
-        //                updateSeekBar();
-        //                mIb_play.setImageResource(R.drawable.play);
-        //            }
-        //        }
+        if (mMusicService!=null){
+            checkPlaying();
+            mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
+        }
+
 
     }
-
+    private void checkPlaying() {
+        if (mMusicService.getPlay_state() == MusicService.STATE_PLAYING) {
+            mIb_play.setImageResource(R.drawable.pause);
+            updateSeekBar();
+        }
+    }
     @Override
     protected void onStart() {
         super.onStart();
