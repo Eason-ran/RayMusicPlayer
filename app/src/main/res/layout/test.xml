@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center"
+              android:background="@color/colorAccent"
+              android:orientation="horizontal"
+              android:padding="20dp">
+
+    <com.raymondqk.raymusicplayer.customview.AvatarCircle
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:src="@drawable/avatar_g"
+        app:StrokeColor="@color/white"
+        app:StrokeWidth="5dp"/>
+    <com.raymondqk.raymusicplayer.customview.AvatarCircle
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:src="@drawable/avatar_bigbang"
+        app:StrokeColor="@color/white"
+        app:StrokeWidth="5dp"/>
+    <com.raymondqk.raymusicplayer.customview.AvatarCircle
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:src="@drawable/avatar_g2"
+        app:StrokeColor="@color/white"
+        app:StrokeWidth="5dp"/>
+</LinearLayout>

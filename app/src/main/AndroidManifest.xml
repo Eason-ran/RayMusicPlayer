@@ -20,8 +20,13 @@
                 <action android:name="android.intent.action.MAIN"></action>
                 <category android:name="android.intent.category.LAUNCHER"></category>
             </intent-filter>
+        </activity><activity android:name=".TestActivity">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN"></action>-->
+                <!--<category android:name="android.intent.category.LAUNCHER"></category>-->
+            <!--</intent-filter>-->
         </activity>
-        <service android:name=".customview.MusicService"></service>
+        <service android:name=".service.MusicService"></service>
         <receiver android:name=".widget.MusicWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>

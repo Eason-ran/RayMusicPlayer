@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +21,8 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.raymondqk.raymusicplayer.adapter.MusicListAdapter;
-import com.raymondqk.raymusicplayer.customview.MusicService;
+import com.raymondqk.raymusicplayer.service.MusicService;
+import com.raymondqk.raymusicplayer.widget.MusicWidgetProvider;
 
 
 /**
@@ -98,7 +100,22 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onPause() {
         super.onPause();
-        unbindService(mServiceConnection);
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //        unbindService(mServiceConnection);
+        mMusicService = null;
+        //        unbindService(mServiceConnection);
+        //        stopService(mMusicSeviceIntent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 
     private void initView() {
@@ -111,6 +128,7 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void onClick(View v) {
                 onBackPressed();
+                //                finish();
 
             }
         });
@@ -206,8 +224,12 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onBackPressed() {
+        mMusicService.removePlayCallback(mPlayCallback);
+        mMusicService = null;
+        mPlayCallback = null;
+        unbindService(mServiceConnection);
         super.onBackPressed();
-
+        //        finish();
     }
 
     @Override
@@ -253,10 +275,10 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
                 }
                 break;
             case R.id.ib_favor:
-                if (mMusicService.isFavor()){
+                if (mMusicService.isFavor()) {
                     mIb_favor.setImageResource(R.drawable.favor_default);
                     mMusicService.setFavor(false);
-                }else {
+                } else {
                     mMusicService.setFavor(true);
                     mIb_favor.setImageResource(R.drawable.favor_pressed);
                 }
@@ -264,13 +286,23 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
 
         }
     }
+
     public void updateSeekBar() {
+        if (mMusicService == null)
+            return;
         if (mMusicService.getPlay_state() == MusicService.STATE_PLAYING) {
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    mProgressBar.setProgress((int) (mMusicService.getProgressPercent() * mProgressBar.getMax()));
-                    updateSeekBar();
+                    try {
+                        mProgressBar.setProgress((int) (mMusicService.getProgressPercent() * mProgressBar.getMax()));
+                        Log.i(MusicWidgetProvider.TEST, "ActivityList updateProgress");
+                        updateSeekBar();
+                    } catch (Exception e) {
+                        Log.e(MusicWidgetProvider.TEST, "ActivityList已被关闭");
+                    }
+
+
                 }
             }, 1000);
         }

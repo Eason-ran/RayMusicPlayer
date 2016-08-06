@@ -13,7 +13,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.raymondqk.raymusicplayer.R;
-import com.raymondqk.raymusicplayer.customview.MusicService;
+import com.raymondqk.raymusicplayer.service.MusicService;
 
 /**
  * Created by 陈其康 raymondchan on 2016/8/5 0005.

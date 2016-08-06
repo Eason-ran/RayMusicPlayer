@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -19,7 +20,7 @@ import com.raymondqk.raymusicplayer.R;
 /**
  * Created by 陈其康 raymondchan on 2016/8/3 0003.
  */
-public class AvatarCircle extends ImageView {
+public class AvatarRound extends ImageView {
 
     //view的宽度
     private int mWidth;
@@ -38,19 +39,21 @@ public class AvatarCircle extends ImageView {
     //边界颜色
     private int mStrokeColor;
 
+    RectF mRectF;
+
 
     //三种构造器
-    public AvatarCircle(Context context) {
+    public AvatarRound(Context context) {
         super(context);
         inti(context, null);
     }
 
-    public AvatarCircle(Context context, AttributeSet attrs) {
+    public AvatarRound(Context context, AttributeSet attrs) {
         super(context, attrs);
         inti(context, attrs);
     }
 
-    public AvatarCircle(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AvatarRound(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         inti(context, attrs);
     }

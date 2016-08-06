@@ -18,7 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.raymondqk.raymusicplayer.customview.AvatarCircle;
-import com.raymondqk.raymusicplayer.customview.MusicService;
+import com.raymondqk.raymusicplayer.service.MusicService;
+import com.raymondqk.raymusicplayer.widget.MusicWidgetProvider;
 
 /**
  * Created by 陈其康 raymondchan on 2016/8/3 0003.
@@ -41,12 +42,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MusicService.OnCompletionCallback mOnCompletionCallback = new MusicService.OnCompletionCallback() {
         @Override
         public void OnCompletion() {
+            //判断当前播放模式，若不为单曲循环，则播放下一首
             if (mMusicService.getPlay_mode() != MusicService.MODE_LOOP_ONE) {
                 playNext();
             }
 
         }
     };
+
     MusicService.PlayCallback mPlayCallback = new MusicService.PlayCallback() {
         @Override
         public void onPlayPrepared() {
@@ -158,19 +161,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        if (mMusicService!=null){
+        if (mMusicService != null) {
             checkPlaying();
             mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
         }
 
 
     }
+
     private void checkPlaying() {
         if (mMusicService.getPlay_state() == MusicService.STATE_PLAYING) {
             mIb_play.setImageResource(R.drawable.pause);
             updateSeekBar();
         }
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -274,15 +279,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     public void updateSeekBar() {
-        if (mMusicService.getPlay_state() == MusicService.STATE_PLAYING) {
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mTv_position.setText(mMusicService.getCurrent_pisition());
-                    mProgress.setProgress((int) (mMusicService.getProgressPercent() * mProgress.getMax()));
-                    updateSeekBar();
-                }
-            }, 1000);
+        if (mMusicService != null) {
+
+            if (mMusicService.getPlay_state() == MusicService.STATE_PLAYING) {
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            mTv_position.setText(mMusicService.getCurrent_pisition());
+                            mProgress.setProgress((int) (mMusicService.getProgressPercent() * mProgress.getMax()));
+                            updateSeekBar();
+                        }catch (Exception e){
+                            Log.e(MusicWidgetProvider.TEST,"Activity已被关闭");
+                        }
+
+                    }
+                }, 1000);
+            }
         }
     }
 }

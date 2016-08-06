@@ -1,4 +1,4 @@
-package com.raymondqk.raymusicplayer.customview;
+package com.raymondqk.raymusicplayer.service;
 
 import android.annotation.TargetApi;
 import android.app.Service;
@@ -111,6 +111,10 @@ public class MusicService extends Service {
         playMusic();
     }
 
+    public void removePlayCallback(PlayCallback playCallback) {
+        mPlayCallbackHashSet.remove(playCallback);
+    }
+
 
     public interface OnCompletionCallback {
         void OnCompletion();
@@ -147,6 +151,7 @@ public class MusicService extends Service {
         //记得释放资源
         mMediaPlayer.stop();
         mMediaPlayer.release();
+        unregisterReceiver(mMusicServiceReceiver);
     }
 
     @Override
@@ -198,6 +203,7 @@ public class MusicService extends Service {
         mMusicServiceReceiver = new MusicServiceReceiver();
         registerReceiver(mMusicServiceReceiver, intentFilter);
         Log.i("Test", "registReceiver");
+
     }
 
 
