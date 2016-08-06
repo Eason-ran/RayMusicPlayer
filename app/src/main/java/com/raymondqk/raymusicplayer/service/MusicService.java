@@ -157,7 +157,6 @@ public class MusicService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("Test", "onStartCommand");
-        playMusic();
         return START_NOT_STICKY;
     }
 
@@ -165,8 +164,56 @@ public class MusicService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        //初始化音乐文件列表
+        initMusicFiles();
+        //初始化MediaPlayer
+        initMediaPlayer();
+        //注册BroadcastReceiver，这是用来接收来自Widget的广播的
+        registBroadcastReceiverForWidget();
+    }
+
+    /**
+     * 注册BroadcastReceiver，这是用来接收来自Widget的广播的
+     */
+    private void registBroadcastReceiverForWidget() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MusicWidgetProvider.WIDGET_PLAY);
+        intentFilter.addAction(MusicWidgetProvider.WIDGET_NEXT);
+        intentFilter.addAction(MusicWidgetProvider.WIDGET_PREVIEW);
+        mMusicServiceReceiver = new MusicServiceReceiver();
+        registerReceiver(mMusicServiceReceiver, intentFilter);
+        Log.i("Test", "registReceiver");
+    }
+
+    /**
+     * 初始化MediaPlayer
+     */
+    private void initMediaPlayer() {
+        mMediaPlayer = new MediaPlayer();
+        //设置播放结束的监听事件
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                //判断当前播放模式是否为单曲循环
+                if (play_mode != MODE_LOOP_ONE) {
+                    //如果非单曲循环，则进行播放下一首的操作
+                    mCompletionCallback.OnCompletion();//这是一个回调，让Activity更新UI等操作
+                } else {
+                    //若为单曲循环，则直接开始播放，不需要重新setDataSource
+                    mMediaPlayer.start();
+                }
+            }
+        });
+    }
+
+    /**
+     * 准备音乐文件
+     * 这里面日后学习了扫描sdcard和获取系统媒体资源之后，重新设计
+     * 目前是使用raw里面的文件
+     */
+    private void initMusicFiles() {
         //android 获取raw 绝对路径 -- raw资源转uri
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {     // 通过循环重复加载uri到list里面，模拟有多首歌曲的情况
             Uri uri = Uri.parse("android.resource://com.raymondqk.raymusicplayer/" + R.raw.missyou);
             mMusicUriList.add(uri);
             mAvatarResIdList.add(R.drawable.avatar_joyce);
@@ -180,30 +227,6 @@ public class MusicService extends Service {
             mTitleList.add("STILL ALIVE");
             mArtistList.add("BIGBANG");
         }
-
-
-        mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                if (play_mode != MODE_LOOP_ONE) {
-                    mCompletionCallback.OnCompletion();
-                } else {
-
-                    mMediaPlayer.start();
-                }
-            }
-        });
-
-
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MusicWidgetProvider.WIDGET_PLAY);
-        intentFilter.addAction(MusicWidgetProvider.WIDGET_NEXT);
-        intentFilter.addAction(MusicWidgetProvider.WIDGET_PREVIEW);
-        mMusicServiceReceiver = new MusicServiceReceiver();
-        registerReceiver(mMusicServiceReceiver, intentFilter);
-        Log.i("Test", "registReceiver");
-
     }
 
 
@@ -264,7 +287,7 @@ public class MusicService extends Service {
         } else {
             currentIndex++;
             current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
-            //            mMediaPlayer.reset();
+
             playMusic();
         }
 
@@ -310,7 +333,6 @@ public class MusicService extends Service {
             }
 
             current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
-            //            mMediaPlayer.reset();
             playMusic();
         }
     }
