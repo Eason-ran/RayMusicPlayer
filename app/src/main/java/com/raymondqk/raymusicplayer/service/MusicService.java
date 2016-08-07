@@ -115,6 +115,14 @@ public class MusicService extends Service {
         mPlayCallbackHashSet.remove(playCallback);
     }
 
+    public void stopMediaPlayer() {
+        mMediaPlayer.pause();
+    }
+
+    public void continueMediaPlayer() {
+        mMediaPlayer.start();
+    }
+
 
     public interface OnCompletionCallback {
         void OnCompletion();
@@ -213,14 +221,19 @@ public class MusicService extends Service {
      */
     private void initMusicFiles() {
         //android 获取raw 绝对路径 -- raw资源转uri
-        for (int i = 0; i < 5; i++) {     // 通过循环重复加载uri到list里面，模拟有多首歌曲的情况
+        for (int i = 0; i < 10; i++) {     // 通过循环重复加载uri到list里面，模拟有多首歌曲的情况
+            //将raw资源转化为uri
             Uri uri = Uri.parse("android.resource://com.raymondqk.raymusicplayer/" + R.raw.missyou);
+            //加入到musicList
             mMusicUriList.add(uri);
+            //把头像资源加入到头像的list里面 与music同步加入，根据index就可以将music和头像对应起来，这是目前的暂缓之策，日后应当根据music的title找到对应的头像图片
             mAvatarResIdList.add(R.drawable.avatar_joyce);
-            // TODO: 2016/8/4 0004 此处需要修改，不能这么简单粗暴，改为从数据库读取，换成HashMap实现
+
+            // TODO: 2016/8/4 0004 因为MediaPlayer似乎无法读取文件里面的歌曲信息，如标题和艺术家，所以目前这样处理着
             mTitleList.add("好想你");
             mArtistList.add("Joyce");
 
+            //这是第二首
             uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.stillalive);
             mMusicUriList.add(uri);
             mAvatarResIdList.add(R.drawable.avatar_bigbang);
@@ -230,34 +243,47 @@ public class MusicService extends Service {
     }
 
 
+    /**
+     * 设置当前播放模式：单曲、循环
+     *
+     * @param play_mode 循环模式 : 可选 MODE_LOOP_ALL/MODE_LOOP_ONE
+     */
     public void setPlay_mode(int play_mode) {
         this.play_mode = play_mode;
     }
 
-    public void setPlay_state(int play_state) {
-        this.play_state = play_state;
-        if (this.play_state == STATE_PLAYING) {
+    /**
+     * 设置当前播放状态：播放中、暂停,同时进行播放操作，是播放还是暂停，暂时未添加停止项
+     * 外部只需要通知播放暂停按键被按下了即可，剩下操作留给service来判断
+     */
+    public int setPlay_state() {
+
+        /*
+        当前是播放状态，则进行暂停操作
+         */
+
+        if (play_state == STATE_PLAYING) {
+            play_state = STATE_STOP;
+            mMediaPlayer.pause();
+        } else if (play_state == STATE_STOP) {
+            play_state = STATE_PLAYING;
             if (fisrtPlay) {
-                current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
-                playMusic();
+                 /*
+                因为刚打开播放器，未添加音乐文件给MediaPlayer，所以做这么一个判断，以防出bug
+                若第一次播放，执行播放函数playMusic()，设置setDataSource等操作
+                 */
                 fisrtPlay = false;
+                playMusic();
             } else {
-                continueMusic();
+                 /*
+                若不是第一次播放，则代表是播放过程中暂停了，现在继续即可。
+                 */
+                mMediaPlayer.start();
             }
-
-        } else if (this.play_state == STATE_STOP) {
-            pauseMusic();
         }
+        return play_state;
     }
 
-    public void continueMusic() {
-        mMediaPlayer.start();
-    }
-
-    private void pauseMusic() {
-        mMediaPlayer.pause();
-
-    }
 
     public int getPlay_mode() {
 
@@ -388,13 +414,7 @@ public class MusicService extends Service {
 
             if (intent != null) {
                 if (TextUtils.equals(intent.getAction(), MusicWidgetProvider.WIDGET_PLAY)) {
-                    if (getPlay_state() == MusicService.STATE_STOP) {
-                        setPlay_state(MusicService.STATE_PLAYING);
-                        // TODO: 2016/8/4 0004 在Service里面进行音乐播放的操作
-                    } else {
-                        setPlay_state(MusicService.STATE_STOP);
-                        // TODO: 2016/8/4 0004 在Service里面进行音乐暂停的操作
-                    }
+                    setPlay_state();
                     Log.i("TEST", "service-onReceive-PLAY");
                 } else if (TextUtils.equals(intent.getAction(), MusicWidgetProvider.WIDGET_NEXT)) {
                     nextMusic();

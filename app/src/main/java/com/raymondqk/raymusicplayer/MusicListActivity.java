@@ -191,19 +191,19 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                if (!mMusicService.isFisrtPlay()) {
-                    mMusicService.setPlay_state(MusicService.STATE_STOP);
-                }
+//                if (!mMusicService.isFisrtPlay()) {
+//                    mMusicService.setPlay_state(MusicService.STATE_STOP);
+//                }
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (!mMusicService.isFisrtPlay()) {
-                    mMusicService.setPlay_state(MusicService.STATE_PLAYING);
-                    //                    updateSeekBar();
-                } else {
-                    mProgressBar.setProgress(0);
-                }
+//                if (!mMusicService.isFisrtPlay()) {
+//                    mMusicService.setPlay_state(MusicService.STATE_PLAYING);
+//                    //                    updateSeekBar();
+//                } else {
+//                    mProgressBar.setProgress(0);
+//                }
             }
         });
 
@@ -252,18 +252,18 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
                 break;
-            case R.id.ib_play:
-                if (mMusicService != null) {
-                    if (mMusicService.getPlay_state() == MusicService.STATE_STOP) {
-                        mMusicService.setPlay_state(MusicService.STATE_PLAYING);
-                        // TODO: 2016/8/4 0004 在Service里面进行音乐播放的操作
-                    } else {
-                        mIb_play.setImageResource(R.drawable.play);
-                        mMusicService.setPlay_state(MusicService.STATE_STOP);
-                        // TODO: 2016/8/4 0004 在Service里面进行音乐暂停的操作
-                    }
-                }
-                break;
+//            case R.id.ib_play:
+//                if (mMusicService != null) {
+//                    if (mMusicService.getPlay_state() == MusicService.STATE_STOP) {
+//                        mMusicService.setPlay_state(MusicService.STATE_PLAYING);
+//                        // TODO: 2016/8/4 0004 在Service里面进行音乐播放的操作
+//                    } else {
+//                        mIb_play.setImageResource(R.drawable.play);
+//                        mMusicService.setPlay_state(MusicService.STATE_STOP);
+//                        // TODO: 2016/8/4 0004 在Service里面进行音乐暂停的操作
+//                    }
+//                }
+//                break;
             case R.id.ib_next:
                 if (!mMusicService.isFisrtPlay()) {
                     mMusicService.nextMusic();

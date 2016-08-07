@@ -140,15 +140,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 if (!mMusicService.isFisrtPlay()) {
-                    mMusicService.setPlay_state(MusicService.STATE_STOP);
+                    mMusicService.stopMediaPlayer();
                 }
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (!mMusicService.isFisrtPlay()) {
-                    mMusicService.setPlay_state(MusicService.STATE_PLAYING);
-                    //                    updateSeekBar();
+                    mMusicService.continueMediaPlayer();
                 } else {
                     mProgress.setProgress(0);
                 }
@@ -246,14 +245,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.ib_play:
                 if (mMusicService != null) {
-                    if (mMusicService.getPlay_state() == MusicService.STATE_STOP) {
-                        mMusicService.setPlay_state(MusicService.STATE_PLAYING);
-                        // TODO: 2016/8/4 0004 在Service里面进行音乐播放的操作
-                    } else {
-                        mIb_play.setImageResource(R.drawable.play);
-                        mMusicService.setPlay_state(MusicService.STATE_STOP);
-                        // TODO: 2016/8/4 0004 在Service里面进行音乐暂停的操作
-                    }
+                    int play_state =mMusicService.setPlay_state();
+                        if (play_state == MusicService.STATE_STOP){
+                            mIb_play.setImageResource(R.drawable.play);
+                        }else if (play_state == MusicService.STATE_PLAYING){
+                            mIb_play.setImageResource(R.drawable.pause);
+                        }
                 }
                 break;
             case R.id.ib_next:

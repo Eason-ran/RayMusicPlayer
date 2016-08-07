@@ -36,7 +36,7 @@ public class MusicWidgetProvider extends AppWidgetProvider {
             MusicService.MusicServiceBinder binder = (MusicService.MusicServiceBinder) service;
             mMusicService = binder.getServiceInstance();
             if (mMusicService != null) {
-                mMusicService.setPlay_state(MusicService.STATE_PLAYING);
+                mMusicService.setPlay_state();
 
             }
         }
