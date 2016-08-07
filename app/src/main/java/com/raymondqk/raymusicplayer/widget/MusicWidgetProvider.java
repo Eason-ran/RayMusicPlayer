@@ -3,11 +3,8 @@ package com.raymondqk.raymusicplayer.widget;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -28,58 +25,58 @@ public class MusicWidgetProvider extends AppWidgetProvider {
     public static final String WIDGET_PREVIEW = "com.raymondcqk.musicplayer.widget_preview_for_service";
     public static final String TEST = "TEST";
 
-    private MusicService mMusicService;
-
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicService.MusicServiceBinder binder = (MusicService.MusicServiceBinder) service;
-            mMusicService = binder.getServiceInstance();
-            if (mMusicService != null) {
-                mMusicService.setPlay_state();
-
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-        }
-    };
-
+    private int play_state = MusicService.STATE_STOP;
+    private boolean isFirst = true;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         if (intent != null) {
-//                        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_widget);
-////                        remoteViews.setImageViewResource(R.id.widget_ib_play, R.drawable.pause);
-//
-//                        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-//                        ComponentName componentName = new ComponentName(context, MusicWidgetProvider.class);
-//                        appWidgetManager.updateAppWidget(componentName, remoteViews);
-            Log.i(TEST,"widget-onReceive");
+            //            if (isFirst) {
+            //                return;
+            //            } else {
+            //                RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_widget);
+            //                if (play_state == MusicService.STATE_PLAYING) {
+            //                    play_state = MusicService.STATE_STOP;
+            //                    remoteViews.setImageViewResource(R.id.widget_ib_play, R.drawable.play);
+            //
+            //                } else if (play_state == MusicService.STATE_STOP) {
+            //                    play_state = MusicService.STATE_PLAYING;
+            //                    remoteViews.setImageViewResource(R.id.widget_ib_play, R.drawable.pause);
+            //
+            //                }
+            //
+            //                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            //                ComponentName componentName = new ComponentName(context, MusicWidgetProvider.class);
+            //                appWidgetManager.updateAppWidget(componentName, remoteViews);
+            //
+            //                isFirst = false;
+            //            }
+            //
+            //        }
+
+
+            Log.i(TEST, "widget-onReceive");
             String action = intent.getAction();
             if (TextUtils.equals(action, WIDGET_PLAY_ACTION)) {
                 Intent i = new Intent();
                 i.setAction(WIDGET_PLAY);
                 context.sendBroadcast(i);
-                Log.i(TEST,"widget-onReceive-sendPlay");
+                Log.i(TEST, "widget-onReceive-sendPlay");
             }
             if (TextUtils.equals(action, WIDGET_NEXT_ACTION)) {
                 Intent i = new Intent();
                 i.setAction(WIDGET_NEXT);
                 context.sendBroadcast(i);
-                Log.i(TEST,"widget-onReceive-sendNext");
+                Log.i(TEST, "widget-onReceive-sendNext");
             }
             if (TextUtils.equals(action, WIDGET_PREVIEW_ACTION)) {
                 Intent i = new Intent();
                 i.setAction(WIDGET_PREVIEW);
                 context.sendBroadcast(i);
-                Log.i(TEST,"widget-onReceive-sendPreview");
+                Log.i(TEST, "widget-onReceive-sendPreview");
             }
         }
-
     }
 
     @Override
@@ -97,7 +94,6 @@ public class MusicWidgetProvider extends AppWidgetProvider {
         intent.setAction(WIDGET_PLAY_ACTION);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.widget_ib_play, pendingIntent);
-
 
 
         Intent intentPre = new Intent();

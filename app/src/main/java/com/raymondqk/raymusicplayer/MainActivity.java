@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (!mMusicService.isFisrtPlay()) {
+                if (!mMusicService.isFirstPlay()) {
                     if (fromUser) { //必须这个判断，是否为用户拉动导致的进度变更，否则会造成播放卡顿现象
                         float percent = (float) progress / (float) mProgress.getMax();
                         mMusicService.setSeekTo(percent);
@@ -139,14 +139,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                if (!mMusicService.isFisrtPlay()) {
+                if (!mMusicService.isFirstPlay()) {
                     mMusicService.stopMediaPlayer();
                 }
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (!mMusicService.isFisrtPlay()) {
+                if (!mMusicService.isFirstPlay()) {
                     mMusicService.continueMediaPlayer();
                 } else {
                     mProgress.setProgress(0);
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.ib_play:
                 if (mMusicService != null) {
-                    int play_state =mMusicService.setPlay_state();
+                    int play_state = mMusicService.setPlay_state();
                         if (play_state == MusicService.STATE_STOP){
                             mIb_play.setImageResource(R.drawable.play);
                         }else if (play_state == MusicService.STATE_PLAYING){
@@ -257,20 +257,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playNext();
                 break;
             case R.id.ib_preview:
-                if (!mMusicService.isFisrtPlay()) {
+                if (!mMusicService.isFirstPlay()) {
                     mMusicService.previewMusic();
-                    //                    mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
-                    //                    updateSeekBar();
                 }
                 break;
         }
     }
 
     private void playNext() {
-        if (!mMusicService.isFisrtPlay()) {
+        if (!mMusicService.isFirstPlay()) {
             mMusicService.nextMusic();
-            //            mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
-            //            updateSeekBar();
         }
     }
 

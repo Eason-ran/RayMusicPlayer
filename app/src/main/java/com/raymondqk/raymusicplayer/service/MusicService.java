@@ -54,7 +54,7 @@ public class MusicService extends Service {
     private int play_mode = MODE_LOOP_ALL;
     private int play_state = STATE_STOP;
 
-    public boolean isFisrtPlay() {
+    public boolean isFirstPlay() {
         return fisrtPlay;
     }
 
@@ -102,7 +102,7 @@ public class MusicService extends Service {
     }
 
     public void onListItemClick(int position) {
-        if (isFisrtPlay()) {
+        if (isFirstPlay()) {
             fisrtPlay = false;
         }
         currentIndex = position;
@@ -303,20 +303,10 @@ public class MusicService extends Service {
     }
 
     public void nextMusic() {
-        // TODO: 2016/8/4 0004 播放下一首
-        //        Toast.makeText(MusicService.this, "下一首", Toast.LENGTH_SHORT).show();
-        //        if (currentIndex > 0) {
-        //            currentIndex++;
-        //        }
-        if (fisrtPlay) {
-
-        } else {
+        if (!fisrtPlay){
             currentIndex++;
-            current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
-
             playMusic();
         }
-
     }
 
     public void playMusic() {
@@ -331,14 +321,13 @@ public class MusicService extends Service {
             mMediaPlayer.reset();
         }
         beforePlay();
-
         mMediaPlayer.start();
     }
 
 
     private void beforePlay() {
         current_duration = mMediaPlayer.getDuration();
-        //        mPlayCallback.onPlayPrepared();
+        current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
         for (PlayCallback playCallback : mPlayCallbackHashSet) {
             playCallback.onPlayPrepared();
         }
@@ -346,19 +335,13 @@ public class MusicService extends Service {
     }
 
     public void previewMusic() {
-        // TODO: 2016/8/4 0004
-        //        Toast.makeText(MusicService.this, "上一首", Toast.LENGTH_SHORT).show();
-        if (fisrtPlay) {
-
-        } else {
+        if (!fisrtPlay) {
             if (currentIndex > 0) {
                 currentIndex--;
             } else {
                 //实现列表前一首到头时，直接跳到队尾。
                 currentIndex = mMusicUriList.size() - 1;
             }
-
-            current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
             playMusic();
         }
     }

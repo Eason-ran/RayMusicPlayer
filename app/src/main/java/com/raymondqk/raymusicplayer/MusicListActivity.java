@@ -106,10 +106,8 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onStop() {
         super.onStop();
-        //        unbindService(mServiceConnection);
         mMusicService = null;
-        //        unbindService(mServiceConnection);
-        //        stopService(mMusicSeviceIntent);
+
     }
 
     @Override
@@ -178,32 +176,38 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
         mProgressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (!mMusicService.isFisrtPlay()) {
-                    if (fromUser) { //必须这个判断，是否为用户拉动导致的进度变更，否则会造成播放卡顿现象
-                        float percent = (float) progress / (float) mProgressBar.getMax();
-                        mMusicService.setSeekTo(percent);
+                if (mMusicService != null) {
+                    if (!mMusicService.isFirstPlay()) {
+                        if (fromUser) { //必须这个判断，是否为用户拉动导致的进度变更，否则会造成播放卡顿现象
+                            float percent = (float) progress / (float) mProgressBar.getMax();
+                            mMusicService.setSeekTo(percent);
+                        }
+                    } else {
+                        Toast.makeText(MusicListActivity.this, "请先点击播放", Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Toast.makeText(MusicListActivity.this, "请先点击播放", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                if (mMusicService != null) {
+                    if (!mMusicService.isFirstPlay()) {
+                        mMusicService.stopMediaPlayer();
+                    }
                 }
 
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-//                if (!mMusicService.isFisrtPlay()) {
-//                    mMusicService.setPlay_state(MusicService.STATE_STOP);
-//                }
-            }
-
-            @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-//                if (!mMusicService.isFisrtPlay()) {
-//                    mMusicService.setPlay_state(MusicService.STATE_PLAYING);
-//                    //                    updateSeekBar();
-//                } else {
-//                    mProgressBar.setProgress(0);
-//                }
+                if (mMusicService != null) {
+                    if (!mMusicService.isFirstPlay()) {
+                        mMusicService.continueMediaPlayer();
+                    } else {
+                        mProgressBar.setProgress(0);
+                    }
+                }
+
             }
         });
 
@@ -252,25 +256,23 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
                 break;
-//            case R.id.ib_play:
-//                if (mMusicService != null) {
-//                    if (mMusicService.getPlay_state() == MusicService.STATE_STOP) {
-//                        mMusicService.setPlay_state(MusicService.STATE_PLAYING);
-//                        // TODO: 2016/8/4 0004 在Service里面进行音乐播放的操作
-//                    } else {
-//                        mIb_play.setImageResource(R.drawable.play);
-//                        mMusicService.setPlay_state(MusicService.STATE_STOP);
-//                        // TODO: 2016/8/4 0004 在Service里面进行音乐暂停的操作
-//                    }
-//                }
-//                break;
+            case R.id.ib_play:
+                if (mMusicService != null) {
+                    int play_state = mMusicService.setPlay_state();
+                    if (play_state == MusicService.STATE_STOP) {
+                        mIb_play.setImageResource(R.drawable.play);
+                    } else if (play_state == MusicService.STATE_PLAYING) {
+                        mIb_play.setImageResource(R.drawable.pause);
+                    }
+                }
+                break;
             case R.id.ib_next:
-                if (!mMusicService.isFisrtPlay()) {
+                if (!mMusicService.isFirstPlay()) {
                     mMusicService.nextMusic();
                 }
                 break;
             case R.id.ib_preview:
-                if (!mMusicService.isFisrtPlay()) {
+                if (!mMusicService.isFirstPlay()) {
                     mMusicService.previewMusic();
                 }
                 break;
