@@ -50,12 +50,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
-    MusicService.PlayCallback mPlayCallback = new MusicService.PlayCallback() {
+    MusicService.PlayPreparedCallback mPlayPreparedCallback = new MusicService.PlayPreparedCallback() {
         @Override
         public void onPlayPrepared() {
             mTv_duration.setText(mMusicService.getCurrent_duration());
             mTv_title.setText(mMusicService.title());
-            mTv_artist.setText(mMusicService.artist());
+            mTv_artist.setText(mMusicService.getArtist());
             mAvatarCircle.setImageResource(mMusicService.getCurrent_Avatar());
             mIb_play.setImageResource(R.drawable.pause);
             updateSeekBar();
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (mMusicService != null) {
                 Toast.makeText(MainActivity.this, "音乐服务绑定成功", Toast.LENGTH_SHORT).show();
                 mMusicService.setCompletionCallback(mOnCompletionCallback);
-                mMusicService.setPlayCallback(mPlayCallback);
+                mMusicService.setPlayCallback(mPlayPreparedCallback);
             } else {
                 Toast.makeText(MainActivity.this, "音乐服务绑定失败", Toast.LENGTH_SHORT).show();
             }
@@ -227,40 +227,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.ib_play_mode:
-                if (mMusicService != null) {
-                    if (mMusicService.getPlay_mode() == MusicService.MODE_LOOP_ALL) {
-                        mMusicService.setPlay_mode(MusicService.MODE_LOOP_ONE);
-                        mIb_play_mode.setImageResource(R.drawable.loop_one);
-                        // TODO: 2016/8/4 0004 设置播放模式
-
-                    } else if (mMusicService.getPlay_mode() == MusicService.MODE_LOOP_ONE) {
-                        mMusicService.setPlay_mode(MusicService.MODE_RADOM);
-                        mIb_play_mode.setImageResource(R.drawable.radom);
-                        // TODO: 2016/8/4 0004 设置播放模式
-                    } else if (mMusicService.getPlay_mode() == MusicService.MODE_RADOM) {
-                        mMusicService.setPlay_mode(MusicService.MODE_LOOP_ALL);
-                        mIb_play_mode.setImageResource(R.drawable.loop_all);
-                    }
-                }
+                switchPlayMode();
                 break;
             case R.id.ib_play:
-                if (mMusicService != null) {
-                    int play_state = mMusicService.setPlay_state();
-                        if (play_state == MusicService.STATE_STOP){
-                            mIb_play.setImageResource(R.drawable.play);
-                        }else if (play_state == MusicService.STATE_PLAYING){
-                            mIb_play.setImageResource(R.drawable.pause);
-                        }
-                }
+                playCurrent();
                 break;
             case R.id.ib_next:
                 playNext();
                 break;
             case R.id.ib_preview:
-                if (!mMusicService.isFirstPlay()) {
-                    mMusicService.previewMusic();
-                }
+                playPreview();
                 break;
+        }
+    }
+
+    private void switchPlayMode() {
+        if (mMusicService != null) {
+            if (mMusicService.getPlay_mode() == MusicService.MODE_LOOP_ALL) {
+                mMusicService.setPlay_mode(MusicService.MODE_LOOP_ONE);
+                mIb_play_mode.setImageResource(R.drawable.loop_one);
+                // TODO: 2016/8/4 0004 设置播放模式
+
+            } else if (mMusicService.getPlay_mode() == MusicService.MODE_LOOP_ONE) {
+                mMusicService.setPlay_mode(MusicService.MODE_RADOM);
+                mIb_play_mode.setImageResource(R.drawable.radom);
+                // TODO: 2016/8/4 0004 设置播放模式
+            } else if (mMusicService.getPlay_mode() == MusicService.MODE_RADOM) {
+                mMusicService.setPlay_mode(MusicService.MODE_LOOP_ALL);
+                mIb_play_mode.setImageResource(R.drawable.loop_all);
+            }
+        }
+    }
+
+    private void playCurrent() {
+        if (mMusicService != null) {
+            int play_state = mMusicService.setPlay_state();
+            if (play_state == MusicService.STATE_STOP) {
+                mIb_play.setImageResource(R.drawable.play);
+            } else if (play_state == MusicService.STATE_PLAYING) {
+                mIb_play.setImageResource(R.drawable.pause);
+            }
+        }
+    }
+
+    private void playPreview() {
+        if (!mMusicService.isFirstPlay()) {
+            mMusicService.previewMusic();
         }
     }
 
@@ -282,8 +294,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             mTv_position.setText(mMusicService.getCurrent_pisition());
                             mProgress.setProgress((int) (mMusicService.getProgressPercent() * mProgress.getMax()));
                             updateSeekBar();
-                        }catch (Exception e){
-                            Log.e(MusicWidgetProvider.TEST,"Activity已被关闭");
+                        } catch (Exception e) {
+                            Log.e(MusicWidgetProvider.TEST, "Activity已被关闭");
                         }
 
                     }

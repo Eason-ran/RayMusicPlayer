@@ -43,7 +43,7 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
                 mAdapter = new MusicListAdapter(MusicListActivity.this, mMusicService.getAvatarResIdList(),
                         mMusicService.getTitleList(), mMusicService.getArtistList());
                 mListView.setAdapter(mAdapter);
-                mMusicService.setPlayCallback(mPlayCallback);
+                mMusicService.setPlayCallback(mPlayPreparedCallback);
                 checkPlaying();
             }
         }
@@ -55,7 +55,7 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
     };
     private MusicListAdapter mAdapter;
 
-    private MusicService.PlayCallback mPlayCallback = new MusicService.PlayCallback() {
+    private MusicService.PlayPreparedCallback mPlayPreparedCallback = new MusicService.PlayPreparedCallback() {
         @Override
         public void onPlayPrepared() {
             mIb_play.setImageResource(R.drawable.pause);
@@ -228,9 +228,9 @@ public class MusicListActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onBackPressed() {
-        mMusicService.removePlayCallback(mPlayCallback);
+        mMusicService.removePlayCallback(mPlayPreparedCallback);
         mMusicService = null;
-        mPlayCallback = null;
+        mPlayPreparedCallback = null;
         unbindService(mServiceConnection);
         super.onBackPressed();
         //        finish();

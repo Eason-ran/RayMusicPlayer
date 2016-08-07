@@ -27,20 +27,24 @@ import java.util.HashSet;
  */
 public class MusicService extends Service {
 
+    /**
+     * 循环模式标志
+     */
     public static final int MODE_LOOP_ALL = 0;
     public static final int MODE_LOOP_ONE = 1;
     public static final int MODE_RADOM = 2;
 
+    /**
+     * 播放状态标志
+     */
     public static final int STATE_PLAYING = 0;
     //    public static final int STATE_PAUSE = 1;
     public static final int STATE_STOP = 2;
 
-    public static final int MSG_STOP = 0;
-    public static final int MSG_PLAY = 1;
-    public static final int MSG_PAUSE = 2;
-    public static final int MSG_NEXT = 3;
-    public static final int MSG_PREVIEW = 4;
     private MusicServiceReceiver mMusicServiceReceiver;
+
+    //是否点了喜欢
+    private boolean isFavor = false;
 
     public boolean isFavor() {
         return isFavor;
@@ -50,37 +54,40 @@ public class MusicService extends Service {
         isFavor = favor;
     }
 
-    private boolean isFavor = false;
+    //循环模式变量
     private int play_mode = MODE_LOOP_ALL;
+    //播放状态变量
     private int play_state = STATE_STOP;
+
+    //判断是否为刚打开播放器，第一次播放
+    private boolean fisrtPlay = true;
 
     public boolean isFirstPlay() {
         return fisrtPlay;
     }
 
-    private boolean fisrtPlay = true;
+    //专辑头像资源id变量
+    private int current_Avatar = R.drawable.album_default;
 
     public int getCurrent_Avatar() {
         return current_Avatar;
     }
 
-    private int current_Avatar = 0;
+    //当前音乐长度
     private int current_duration;
-    private int current_pisition;
-
 
     MusicServiceBinder mBinder = new MusicServiceBinder();
+    //媒体播放类
     private MediaPlayer mMediaPlayer;
-
+    //存储头像资源文件id的list
     private ArrayList<Integer> mAvatarResIdList = new ArrayList<Integer>();
-    private int[] mAvatars = {R.drawable.avatar_joyce, R.drawable.avatar_bigbang};
+    //存储音乐文件uri的list
     private ArrayList<Uri> mMusicUriList = new ArrayList<Uri>();
-
-    public int getCurrentIndex() {
-        return currentIndex;
-    }
-
+    //记录当前播放歌曲索引
     private int currentIndex;
+
+    private ArrayList<String> mTitleList = new ArrayList<String>();
+    private ArrayList<String> mArtistList = new ArrayList<String>();
 
     public ArrayList<String> getTitleList() {
         return mTitleList;
@@ -94,13 +101,20 @@ public class MusicService extends Service {
         return mArtistList;
     }
 
-    private ArrayList<String> mTitleList = new ArrayList<String>();
-    private ArrayList<String> mArtistList = new ArrayList<String>();
-
+    /**
+     * 给mediaplayer设置要从哪个位置播放
+     *
+     * @param percent
+     */
     public void setSeekTo(float percent) {
         mMediaPlayer.seekTo((int) (current_duration * percent));
     }
 
+    /**
+     * 响应音乐列表被点击
+     *
+     * @param position
+     */
     public void onListItemClick(int position) {
         if (isFirstPlay()) {
             fisrtPlay = false;
@@ -111,24 +125,26 @@ public class MusicService extends Service {
         playMusic();
     }
 
-    public void removePlayCallback(PlayCallback playCallback) {
-        mPlayCallbackHashSet.remove(playCallback);
-    }
-
-    public void stopMediaPlayer() {
-        mMediaPlayer.pause();
-    }
-
-    public void continueMediaPlayer() {
-        mMediaPlayer.start();
+    /**
+     * 当实现了该类被销毁后，也从接口列表中移除
+     * @param playPreparedCallback
+     */
+    public void removePlayCallback(PlayPreparedCallback playPreparedCallback) {
+        mPlayPreparedCallbackHashSet.remove(playPreparedCallback);
     }
 
 
+    /**
+     * 接口：当前文件播放完成时调用，在实现的类里面回调
+     */
     public interface OnCompletionCallback {
         void OnCompletion();
     }
 
-    public interface PlayCallback {
+    /**
+     * 接口：在MediaPlayer.setDataSource()装载音乐文件后，start()前调用，在实现的类里面回调，完成相关准备工作
+     */
+    public interface PlayPreparedCallback {
         void onPlayPrepared();
     }
 
@@ -139,12 +155,16 @@ public class MusicService extends Service {
         mCompletionCallback = completionCallback;
     }
 
+    //使用集合来存储接口引用，以达到可扩展的目的，无论多少个类实现了该接口，都可以通过集合存储，不需要为每个类都提供一个接口变量 ==== java框架思想
+    private HashSet<PlayPreparedCallback> mPlayPreparedCallbackHashSet = new HashSet<PlayPreparedCallback>();
 
-    private HashSet<PlayCallback> mPlayCallbackHashSet = new HashSet<PlayCallback>();
-    //    private PlayCallback mPlayCallback;
-
-    public void setPlayCallback(PlayCallback playCallback) {
-        mPlayCallbackHashSet.add(playCallback);
+    /**
+     * 返回接口实例引用
+     *
+     * @param playPreparedCallback
+     */
+    public void setPlayCallback(PlayPreparedCallback playPreparedCallback) {
+        mPlayPreparedCallbackHashSet.add(playPreparedCallback);
     }
 
     @Nullable
@@ -153,6 +173,9 @@ public class MusicService extends Service {
         return mBinder;
     }
 
+    /**
+     * 在服务解绑或stop时调用
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -168,6 +191,9 @@ public class MusicService extends Service {
         return START_NOT_STICKY;
     }
 
+    /**
+     * Service被绑定或启动时执行，进行相关初始化工作
+     */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onCreate() {
@@ -226,7 +252,8 @@ public class MusicService extends Service {
             Uri uri = Uri.parse("android.resource://com.raymondqk.raymusicplayer/" + R.raw.missyou);
             //加入到musicList
             mMusicUriList.add(uri);
-            //把头像资源加入到头像的list里面 与music同步加入，根据index就可以将music和头像对应起来，这是目前的暂缓之策，日后应当根据music的title找到对应的头像图片
+            //把头像资源加入到头像的list里面 与music同步加入，根据index就可以将music和头像对应起来，这是目前的暂缓之策
+            // 日后应当根据music的title找到对应的头像图片
             mAvatarResIdList.add(R.drawable.avatar_joyce);
 
             // TODO: 2016/8/4 0004 因为MediaPlayer似乎无法读取文件里面的歌曲信息，如标题和艺术家，所以目前这样处理着
@@ -285,34 +312,52 @@ public class MusicService extends Service {
     }
 
 
+    /**
+     * 获取当前循环模式
+     *
+     * @return
+     */
     public int getPlay_mode() {
-
         return play_mode;
     }
 
+    /**
+     * 获取当前播放器状态：暂停、播放
+     *
+     * @return
+     */
     public int getPlay_state() {
         return play_state;
     }
 
+    /**
+     * 获取当前歌曲名
+     *
+     * @return
+     */
     public String title() {
         return mTitleList.get(currentIndex % mTitleList.size());
     }
 
-    public String artist() {
+    /**
+     * 获取当前歌手
+     *
+     * @return
+     */
+    public String getArtist() {
         return mArtistList.get(currentIndex % mArtistList.size());
     }
 
-    public void nextMusic() {
-        if (!fisrtPlay){
-            currentIndex++;
-            playMusic();
-        }
-    }
 
+    /**
+     * 播放音乐
+     */
     public void playMusic() {
         Log.i("Test", "play");
+        //重置MediaPlayer，确保能顺利载入datasource以及播放，这里的策略是每次要播放新歌曲时，即第一次播放，切歌时，都进行一次reset
         mMediaPlayer.reset();
-        try {
+        try {//prepare()会抛出异常
+            //设置数据源
             mMediaPlayer.setDataSource(MusicService.this, mMusicUriList.get(currentIndex % mMusicUriList.size()));
             mMediaPlayer.prepare();
         } catch (IOException e) {
@@ -320,38 +365,99 @@ public class MusicService extends Service {
             Log.e("Test", "无法播放音乐");
             mMediaPlayer.reset();
         }
+        //在数据源装载好，MediaPlayer准备就绪之后，播放之前，做些定制化的准备工作，如通知Activity更新UI
         beforePlay();
+        //播放音乐
         mMediaPlayer.start();
     }
 
-
+    /**
+     * 播放音乐前的准备工作
+     */
     private void beforePlay() {
+        //获取当前音乐文件的总时长
         current_duration = mMediaPlayer.getDuration();
+        //获得当前音乐文件对应的头像专辑图的资源id
         current_Avatar = mAvatarResIdList.get(currentIndex % mAvatarResIdList.size());
-        for (PlayCallback playCallback : mPlayCallbackHashSet) {
-            playCallback.onPlayPrepared();
+        //我们定义了一个Hashset，用来存放每个类中接口的实例，通过遍历这个集合，就可以做到让每个类响应回调
+        for (PlayPreparedCallback playPreparedCallback : mPlayPreparedCallbackHashSet) {
+            //接口回调，在实现了接口的类中实现
+            playPreparedCallback.onPlayPrepared();
         }
 
     }
 
-    public void previewMusic() {
+    /**
+     * 上一首
+     */
+    public void nextMusic() {
         if (!fisrtPlay) {
-            if (currentIndex > 0) {
-                currentIndex--;
-            } else {
-                //实现列表前一首到头时，直接跳到队尾。
-                currentIndex = mMusicUriList.size() - 1;
-            }
+            //歌曲索引加一，指向下一首歌曲
+            currentIndex++;
+            //设置完索引，就让播放函数载入当前索引对应的音乐文件
             playMusic();
         }
     }
 
+    /**
+     * 下一首
+     */
+    public void previewMusic() {
+        if (!fisrtPlay) {
+            if (currentIndex > 0) {
+                //歌曲索引减一，指向上一首歌曲
+                currentIndex--;
+            } else {
+                //上面的代码会导致索引出现负值，作如下处理
+                //当前索引为0，即第一首，负值为队尾的索引值，即最后一首
+                currentIndex = mMusicUriList.size() - 1;
+            }
+            //设置完索引，就让播放函数载入当前索引对应的音乐文件
+            playMusic();
+        }
+    }
+
+    /**
+     * 暂停当前播放
+     */
+    public void stopMediaPlayer() {
+        mMediaPlayer.pause();
+    }
+
+    /**
+     * 继续当前播放
+     */
+    public void continueMediaPlayer() {
+        mMediaPlayer.start();
+    }
+
+    /**
+     * 获得当前音乐长度的字符串 格式 02:25
+     *
+     * @return
+     */
     public String getCurrent_duration() {
         return getTimeStrByMils(current_duration);
 
     }
 
 
+    /**
+     * 获得当前播放进度的字符串 格式 02:25
+     *
+     * @return
+     */
+    public String getCurrent_pisition() {
+        return getTimeStrByMils(mMediaPlayer.getCurrentPosition());
+    }
+
+
+    /**
+     * 毫秒转 02：25 格式的字符串
+     *
+     * @param mils
+     * @return
+     */
     private String getTimeStrByMils(int mils) {
         int seconds = mils / 1000;
         int min = seconds / 60;
@@ -371,25 +477,29 @@ public class MusicService extends Service {
         return min_str + ":" + sec_str;
     }
 
-    public void setCurrent_duration(int current_duration) {
-        this.current_duration = current_duration;
-    }
-
-    public String getCurrent_pisition() {
-        return getTimeStrByMils(mMediaPlayer.getCurrentPosition());
-    }
-
+    /**
+     * 获得当前进度的百分比
+     *
+     * @return
+     */
     public float getProgressPercent() {
 
         return (float) mMediaPlayer.getCurrentPosition() / (float) mMediaPlayer.getDuration();
     }
 
+    /**
+     * 创建一个Binder类，用于绑定服务时传给Activity
+     */
     public class MusicServiceBinder extends Binder {
+        //返回当前服务的实例引用
         public MusicService getServiceInstance() {
             return MusicService.this;
         }
     }
 
+    /**
+     * 用与接收来自Widget的Broadcast
+     */
     class MusicServiceReceiver extends BroadcastReceiver {
 
         @Override
