@@ -22,14 +22,16 @@
             <!--<category android:name="android.intent.category.LAUNCHER"></category>-->
             <!--</intent-filter>-->
         </activity>
-        <activity android:name=".TestActivity">
+        <activity android:name=".LaunchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"></action>
                 <category android:name="android.intent.category.LAUNCHER"></category>
             </intent-filter>
         </activity>
+        <activity android:name=".GuideActivity"></activity>
 
         <service android:name=".service.MusicService"></service>
+
         <receiver android:name=".widget.MusicWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -48,6 +50,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@layout/appwiget_provider"></meta-data>
         </receiver>
+
     </application>
 
 </manifest>

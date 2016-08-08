@@ -32,28 +32,6 @@ public class MusicWidgetProvider extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         if (intent != null) {
-            //            if (isFirst) {
-            //                return;
-            //            } else {
-            //                RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_widget);
-            //                if (play_state == MusicService.STATE_PLAYING) {
-            //                    play_state = MusicService.STATE_STOP;
-            //                    remoteViews.setImageViewResource(R.id.widget_ib_play, R.drawable.play);
-            //
-            //                } else if (play_state == MusicService.STATE_STOP) {
-            //                    play_state = MusicService.STATE_PLAYING;
-            //                    remoteViews.setImageViewResource(R.id.widget_ib_play, R.drawable.pause);
-            //
-            //                }
-            //
-            //                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            //                ComponentName componentName = new ComponentName(context, MusicWidgetProvider.class);
-            //                appWidgetManager.updateAppWidget(componentName, remoteViews);
-            //
-            //                isFirst = false;
-            //            }
-            //
-            //        }
 
 
             Log.i(TEST, "widget-onReceive");
@@ -77,6 +55,34 @@ public class MusicWidgetProvider extends AppWidgetProvider {
                 Log.i(TEST, "widget-onReceive-sendPreview");
             }
         }
+
+        /**
+         * 更新widget ui 的方式
+         *
+         if (isFirst) {
+         return;
+         } else {
+         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_widget);
+         if (play_state == MusicService.STATE_PLAYING) {
+         play_state = MusicService.STATE_STOP;
+         remoteViews.setImageViewResource(R.id.widget_ib_play, R.drawable.play);
+
+         } else if (play_state == MusicService.STATE_STOP) {
+         play_state = MusicService.STATE_PLAYING;
+         remoteViews.setImageViewResource(R.id.widget_ib_play, R.drawable.pause);
+
+         }
+
+         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+         ComponentName componentName = new ComponentName(context, MusicWidgetProvider.class);
+         appWidgetManager.updateAppWidget(componentName, remoteViews);
+
+         isFirst = false;
+         }
+
+         }
+         */
+
     }
 
     @Override

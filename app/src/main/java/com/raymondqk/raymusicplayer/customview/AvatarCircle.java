@@ -116,16 +116,16 @@ public class AvatarCircle extends ImageView {
         canvas.drawCircle(mWidth / 2, mWidth / 2, mRadius, mBorderPaint);
     }
 
-    /**
-     * 将图片转换为Bitmap的工具函数
-     *
-     * @param drawable
-     * @return
-     */
-    private Bitmap drawableToBitmap(Drawable drawable) {
-        BitmapDrawable bd = (BitmapDrawable) drawable;
-        return bd.getBitmap();
-    }
+//    /**
+//     * 将图片转换为Bitmap的工具函数
+//     *
+//     * @param drawable
+//     * @return
+//     */
+//    private Bitmap drawableToBitmap(Drawable drawable) {
+//        BitmapDrawable bd = (BitmapDrawable) drawable;
+//        return bd.getBitmap();
+//    }
 
     /**
      * 初始化
