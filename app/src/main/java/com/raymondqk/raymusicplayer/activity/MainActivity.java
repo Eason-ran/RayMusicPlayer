@@ -1,4 +1,4 @@
-package com.raymondqk.raymusicplayer;
+package com.raymondqk.raymusicplayer.activity;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -17,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.raymondqk.raymusicplayer.R;
 import com.raymondqk.raymusicplayer.customview.AvatarCircle;
 import com.raymondqk.raymusicplayer.service.MusicService;
 import com.raymondqk.raymusicplayer.widget.MusicWidgetProvider;
